@@ -29,7 +29,7 @@ The framework creates a reflexive loop:
 pip install reflexive-composition
 
 # From source
-git clone https://github.com/yourusername/reflexive-composition.git
+git clone https://github.com/SystemTwoAI/ReflexiveComposition.git
 cd reflexive-composition
 pip install -e .
 ```
@@ -111,7 +111,7 @@ The framework has been evaluated across several case studies:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/reflexive-composition.git
+git clone https://github.com/SystemTwoAI/ReflexiveComposition.git
 cd reflexive-composition
 
 # Install development dependencies

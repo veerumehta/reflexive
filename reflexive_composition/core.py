@@ -66,7 +66,7 @@ class ReflexiveComposition:
     def _init_hitl(self, config: Dict[str, Any]) -> None:
         """Initialize the HITL component."""
         from reflexive_composition.hitl import Validator
-        self.validator = Validator(**config)
+        self.validator = Validator(config=config)
     
     def extract_knowledge(self, 
                          source_text: str, 

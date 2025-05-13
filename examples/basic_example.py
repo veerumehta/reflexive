@@ -27,15 +27,15 @@ def main():
     
     # Set up configuration
     kb_llm_config = {
-        "model_name": os.environ.get("KB_LLM_MODEL", "gpt-3.5-turbo"),
-        "api_key": os.environ.get("OPENAI_API_KEY"),
-        "model_provider": "openai"
+        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-pro"),
+        "api_key": os.environ.get("GOOGLE_API_KEY"),
+        "model_provider": "google"
     }
     
     target_llm_config = {
-        "model_name": os.environ.get("TARGET_LLM_MODEL", "gpt-3.5-turbo"),
-        "api_key": os.environ.get("OPENAI_API_KEY"),
-        "model_provider": "openai"
+        "model_name": os.environ.get("TARGET_LLM_MODEL", "gemini-pro"),
+        "api_key": os.environ.get("GOOGLE_API_KEY"),
+        "model_provider": "google"
     }
     
     kg_config = {

@@ -115,6 +115,15 @@ class KnowledgeBuilderLLM:
                 logger.error("Anthropic package not found. Please install with 'pip install anthropic'")
                 raise
         
+        elif self.model_provider == "google":  # Add Google Gemini support
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=self.api_key)
+                return genai
+            except ImportError:
+                logger.error("Google GenerativeAI package not found. Please install with 'pip install google-generativeai'")
+                raise
+
         elif self.model_provider == "huggingface":
             try:
                 from transformers import pipeline

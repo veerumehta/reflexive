@@ -9,7 +9,7 @@ version = "0.1.0"
 description = "A framework for bidirectional enhancement of Large Language Models and Knowledge Graphs"
 readme = "README.md"
 authors = [
-    {name = "Virendra Mehta", email = "veeru@alumni.stanford.edu"}
+    {name = "Virendra Mehta", email = "virendra.mehta@unitn.it"}
 ]
 license = {text = "GNU v3"}
 classifiers = [
@@ -25,6 +25,7 @@ dependencies = [
     "openai>=0.27.0",
     "numpy>=1.20.0",
     "tqdm>=4.62.0",
+    "google-generativeai>=0.1.0",
 ]
 requires-python = ">=3.8"
 
