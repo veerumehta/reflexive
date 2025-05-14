@@ -10,6 +10,7 @@ The framework consists of three main components:
 """
 import logging
 from typing import Dict, List, Optional, Any, Union, Tuple
+from reflexive_composition.utils.llm_utils import extract_text
 
 logger = logging.getLogger(__name__)
 
@@ -248,6 +249,15 @@ class ReflexiveComposition:
             return validated_response
         
         return response
+    
+    def answer_query(self, query: str, grounded: bool = True) -> dict:
+        if grounded:
+            response = self.generate_response(query=query, retrieve_context=True)
+        else:
+            # Skip KG and send raw query to the target LLM
+            response = self._target_llm.generate(query=query)
+        text = extract_text(response, self.target_llm.model_provider)
+        return text
     
     def _detect_contradictions(self, 
                               response: Dict[str, Any], 

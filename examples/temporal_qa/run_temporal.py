@@ -22,15 +22,15 @@ def main():
 
     # --- Configuration ---
     kb_llm_config = {
-        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-2.0-pro"),
+        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-2.0-flash"),
         "api_key": os.environ.get("GEMINI_API_KEY"),
         "model_provider": "google",
     }
 
     target_llm_config = {
-        "model_name": os.environ.get("TARGET_LLM_MODEL", "gpt-4"),
-        "api_key": os.environ.get("OPENAI_API_KEY"),
-        "model_provider": "openai",
+        "model_name": os.environ.get("TARGET_LLM_MODEL", "gemini-2.0-flash"),
+        "api_key": os.environ.get("GEMINI_API_KEY"),
+        "model_provider": "google",
     }
 
     kg_config = {
@@ -66,11 +66,11 @@ def main():
         for rel in structured_data["relations"]:
             print(" -", rel["subject"], rel["predicate"], rel["object"])
         print("\n(You can switch to use this KG directly for QA if needed.)\n")
-    source_text = \"\"\"
+    source_text = """
     Newcastle United defeated Liverpool 2–1 in the 2025 EFL Cup final held at Wembley on March 16, 2025.
     It was Newcastle’s first major domestic trophy in 70 years, having last won the FA Cup in 1955.
     Goals were scored by Alexander Isak and Bruno Guimarães.
-    \"\"\"
+    """
 
     print("Extracting knowledge from match summary...\n")
     extraction_result = rc.extract_knowledge(
@@ -84,14 +84,13 @@ def main():
         print(" -", triple)
 
     print("\nAnswering temporal question...\n")
-    prompt_result = rc.generate_output(
+    prompt_result = rc.answer_query(
         query="When did Newcastle United last win a major domestic trophy?",
         grounded=True
     )
 
     print("Generated Answer:")
-    print(prompt_result["response"])
-
+    print(prompt_result)
 
 if __name__ == "__main__":
     main()

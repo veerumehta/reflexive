@@ -22,15 +22,15 @@ def main():
 
     # --- Configuration ---
     kb_llm_config = {
-        "model_name": os.environ.get("KB_LLM_MODEL", "medlm-1"),
-        "api_key": os.environ.get("MEDLM_API_KEY"),
-        "model_provider": "custom",
+        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-2.0-flash"),
+        "api_key": os.environ.get("GEMINI_API_KEY"),
+        "model_provider": "google",
     }
 
     target_llm_config = {
-        "model_name": os.environ.get("TARGET_LLM_MODEL", "gpt-4"),
-        "api_key": os.environ.get("OPENAI_API_KEY"),
-        "model_provider": "openai",
+        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-2.0-flash"),
+        "api_key": os.environ.get("GEMINI_API_KEY"),
+        "model_provider": "google",
     }
 
     kg_config = {
@@ -66,10 +66,10 @@ def main():
         for rel in structured_data["relations"]:
             print(" -", rel["subject"], rel["predicate"], rel["object"])
         print("\n(You can wire this into a KG directly instead of using free text.)\n")
-    source_text = \"\"\"
+    source_text = """
     Patient John Doe, age 45, diagnosed with hypertension and Type 2 diabetes.
     Currently taking metformin and lisinopril. Reports mild allergy to sulfa drugs.
-    \"\"\"
+    """
 
     print("Extracting structured knowledge from FHIR-style patient record...\n")
     extraction_result = rc.extract_knowledge(
@@ -83,13 +83,13 @@ def main():
         print(" -", triple)
 
     print("\nGenerating answer to clinical question...\n")
-    prompt_result = rc.generate_output(
+    prompt_result = rc.answer_query(
         query="Are there any known medication risks for this patient profile?",
         grounded=True
     )
 
     print("Generated Answer:")
-    print(prompt_result["response"])
+    print(prompt_result)
 
 
 if __name__ == "__main__":

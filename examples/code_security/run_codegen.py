@@ -22,15 +22,15 @@ def main():
 
     # --- Configuration ---
     kb_llm_config = {
-        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-2.0-pro"),
+        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-2.0-flash"),
         "api_key": os.environ.get("GEMINI_API_KEY"),
         "model_provider": "google",
     }
 
     target_llm_config = {
-        "model_name": os.environ.get("TARGET_LLM_MODEL", "gpt-4"),
-        "api_key": os.environ.get("OPENAI_API_KEY"),
-        "model_provider": "openai",
+        "model_name": os.environ.get("TARGET_LLM_MODEL", "gemini-2.0-flash"),
+        "api_key": os.environ.get("GEMINI_API_KEY"),
+        "model_provider": "google",
     }
 
     kg_config = {
@@ -56,12 +56,12 @@ def main():
     )
 
     # --- Source Text for Extraction ---
-    source_text = \"\"\"
+    source_text = """
     The Python 'cgi' module was officially deprecated in version 3.11 due to long-standing
     security issues. Developers are advised to use safer alternatives like 'http.server'
     or third-party libraries. The 'cgi.escape' method, in particular, has caused XSS vulnerabilities
     in the past.
-    \"\"\"
+    """
 
     print("Extracting knowledge from code security input...\n")
     extraction_result = rc.extract_knowledge(
@@ -75,13 +75,13 @@ def main():
         print(" -", triple)
 
     print("\nGenerating secure code suggestion...\n")
-    prompt_result = rc.generate_output(
+    prompt_result = rc.answer_query(
         query="What is a safe alternative to using the 'cgi.escape' function in modern Python?",
         grounded=True
     )
 
     print("Generated Answer:")
-    print(prompt_result["response"])
+    print(prompt_result)
 
 
 if __name__ == "__main__":
