@@ -1,0 +1,17 @@
+{
+  "entities": [
+    { "type": "Patient", "name": "John Doe" },
+    { "type": "Condition", "name": "hypertension" },
+    { "type": "Condition", "name": "Type 2 diabetes" },
+    { "type": "Medication", "name": "metformin" },
+    { "type": "Medication", "name": "lisinopril" },
+    { "type": "Allergy", "name": "sulfa drugs" }
+  ],
+  "relations": [
+    { "subject": "John Doe", "predicate": "HasCondition", "object": "hypertension" },
+    { "subject": "John Doe", "predicate": "HasCondition", "object": "Type 2 diabetes" },
+    { "subject": "John Doe", "predicate": "Prescribed", "object": "metformin" },
+    { "subject": "John Doe", "predicate": "Prescribed", "object": "lisinopril" },
+    { "subject": "John Doe", "predicate": "ContraindicatedWith", "object": "sulfa drugs" }
+  ]
+}
