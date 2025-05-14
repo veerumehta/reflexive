@@ -69,9 +69,10 @@ class ReflexiveComposition:
         self.validator = Validator(config=config)
     
     def extract_knowledge(self, 
-                         source_text: str, 
-                         schema: Optional[Dict[str, Any]] = None,
-                         confidence_threshold: float = 0.7) -> Dict[str, Any]:
+                        source_text: str, 
+                        schema: Optional[Dict[str, Any]] = None,
+                        confidence_threshold: float = 0.7,
+                        debug: bool = False) -> Dict[str, Any]:
         """
         Extract knowledge from source text using the KB-LLM.
         
@@ -79,34 +80,124 @@ class ReflexiveComposition:
             source_text: The text to extract knowledge from
             schema: Optional schema to guide extraction
             confidence_threshold: Threshold for automatic acceptance
+            debug: Enable debug output
             
         Returns:
             Extracted knowledge in structured format
         """
         # Extract candidate triples
+        if debug:
+            print(f"DEBUG: Extracting knowledge from text of length {len(source_text)} characters")
+            print(f"DEBUG: Using KB-LLM: {getattr(self.kb_llm, 'model_name', 'Unknown')} ({getattr(self.kb_llm, 'model_provider', 'Unknown')})")
+        
         candidate_triples = self.kb_llm.extract(source_text, schema)
         
-        # If validator is available, route low-confidence triples
+        if debug:
+            print(f"DEBUG: Extraction result type: {type(candidate_triples)}")
+            print(f"DEBUG: Extraction result: {json.dumps(candidate_triples, indent=2, default=str)}")
+        
+        # Handle case where extraction result is not a dictionary
+        if not isinstance(candidate_triples, dict):
+            if debug:
+                print(f"DEBUG: Invalid extraction result format. Expected dict, got {type(candidate_triples)}")
+            
+            # If it's a string, try to parse it as JSON
+            if isinstance(candidate_triples, str):
+                try:
+                    import json
+                    parsed_result = json.loads(candidate_triples)
+                    if debug:
+                        print(f"DEBUG: Parsed string as JSON: {json.dumps(parsed_result, indent=2)}")
+                    candidate_triples = parsed_result
+                except json.JSONDecodeError:
+                    if debug:
+                        print(f"DEBUG: Failed to parse string as JSON")
+                    return {"triples": []}
+            else:
+                return {"triples": []}
+        
+        # Ensure 'triples' key exists in the dictionary
+        if 'triples' not in candidate_triples:
+            if debug:
+                print(f"DEBUG: 'triples' key not found in extraction result")
+            
+            # If the entire dict is structured like a single triple, wrap it
+            if all(k in candidate_triples for k in ['subject', 'predicate', 'object']):
+                if debug:
+                    print(f"DEBUG: Converting single triple structure to list")
+                candidate_triples = {'triples': [candidate_triples]}
+            else:
+                if debug:
+                    print(f"DEBUG: Returning empty triples list")
+                return {'triples': []}
+        
+        if debug:
+            print(f"DEBUG: Processing {len(candidate_triples.get('triples', []))} candidate triples")
+        
+        # Rest of the method remains the same, but with added debug prints
         if self.validator:
             validated_triples = []
-            for triple in candidate_triples:
-                if triple.get('confidence', 0) >= confidence_threshold:
+            for i, triple in enumerate(candidate_triples.get('triples', [])):
+                if debug:
+                    print(f"DEBUG: Processing triple {i+1}: {triple}")
+                
+                # Ensure triple is a dictionary
+                if not isinstance(triple, dict):
+                    if debug:
+                        print(f"DEBUG: Invalid triple format. Expected dict, got {type(triple)}")
+                    continue
+                
+                confidence = triple.get('confidence', 0)
+                if debug:
+                    print(f"DEBUG: Triple confidence: {confidence}, threshold: {confidence_threshold}")
+                
+                if confidence >= confidence_threshold:
+                    if debug:
+                        print(f"DEBUG: Auto-accepting triple (confidence above threshold)")
                     validated_triples.append(triple)
                 else:
+                    if debug:
+                        print(f"DEBUG: Routing triple to validator")
                     # Route to validator
                     validation_result = self.validator.validate_triple(
                         triple, source_text, self.knowledge_graph
                     )
                     if validation_result.get('accepted', False):
+                        if debug:
+                            print(f"DEBUG: Validator accepted triple")
                         validated_triples.append(validation_result.get('triple', triple))
+                    elif debug:
+                        print(f"DEBUG: Validator rejected triple")
+            
+            if debug:
+                print(f"DEBUG: Returning {len(validated_triples)} validated triples")
             
             return {'triples': validated_triples}
         
         # Without validator, return all triples above threshold
-        return {
-            'triples': [t for t in candidate_triples 
-                       if t.get('confidence', 0) >= confidence_threshold]
-        }
+        filtered_triples = []
+        for i, triple in enumerate(candidate_triples.get('triples', [])):
+            if debug:
+                print(f"DEBUG: Processing triple {i+1} without validator")
+            
+            # Ensure triple is a dictionary
+            if not isinstance(triple, dict):
+                if debug:
+                    print(f"DEBUG: Invalid triple format. Expected dict, got {type(triple)}")
+                continue
+            
+            confidence = triple.get('confidence', 0)
+            if confidence >= confidence_threshold:
+                if debug:
+                    print(f"DEBUG: Accepting triple (confidence {confidence} above threshold {confidence_threshold})")
+                filtered_triples.append(triple)
+            elif debug:
+                print(f"DEBUG: Rejecting triple (confidence {confidence} below threshold {confidence_threshold})")
+        
+        if debug:
+            print(f"DEBUG: Returning {len(filtered_triples)} filtered triples")
+        
+        return {'triples': filtered_triples}
     
     def update_knowledge_graph(self, triples: List[Dict[str, Any]]) -> bool:
         """

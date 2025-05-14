@@ -129,6 +129,8 @@ class TargetLLM:
                 llm_response = self._generate_with_openai(prompt)
             elif self.model_provider == "anthropic":
                 llm_response = self._generate_with_anthropic(prompt)
+            elif self.model_provider == "google":  # Add Google provider case
+                llm_response = self._generate_with_google(prompt)
             elif self.model_provider == "huggingface":
                 llm_response = self._generate_with_huggingface(prompt)
             else:
@@ -210,6 +212,41 @@ class TargetLLM:
         
         return response
     
+    def _generate_with_google(self, prompt: str) -> Any:
+        """
+        Generate text using Google's Gemini API.
+        
+        Args:
+            prompt: The prompt to send to the LLM
+            
+        Returns:
+            Google API response
+        """
+        try:
+            # Configure generation parameters
+            generation_config = {
+                "temperature": self.temperature,
+                "max_output_tokens": self.max_tokens,
+                "top_p": 0.95,
+                "top_k": 40
+            }
+            
+            # Initialize model
+            logger.info(f"Generating with Google model: {self.model_name}")
+            model = self.llm_client.GenerativeModel(model_name=self.model_name)
+            
+            # Structure prompt content
+            prompt_parts = [prompt]
+            
+            # Generate content
+            response = model.generate_content(prompt_parts)
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"Error generating with Google API: {e}")
+            raise
+        
     def _generate_with_huggingface(self, prompt: str) -> Any:
         """
         Generate text using HuggingFace's transformers.

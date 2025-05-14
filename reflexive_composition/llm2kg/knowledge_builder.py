@@ -59,16 +59,16 @@ class KnowledgeBuilderLLM:
         {schema_guidance}
         
         Expected output format:
-        {
+        {{
             "triples": [
-                {
+                {{
                     "subject": "entity_name",
                     "predicate": "relation_type",
                     "object": "target_entity_or_value",
                     "confidence": 0.95
-                }
+                }}
             ]
-        }
+        }}
         """
         
         # Set default schema prompt template if none provided
@@ -207,6 +207,29 @@ class KnowledgeBuilderLLM:
                 )
                 return response.completion
             
+            elif self.model_provider == "google":  # Add Google Gemini support
+                generation_config = {
+                    "temperature": self.temperature,
+                    "max_output_tokens": self.max_tokens,
+                    "top_p": 0.95,
+                    "top_k": 40
+                }
+                
+                model = self.llm_client.GenerativeModel(
+                    model_name=self.model_name,
+                    generation_config=generation_config
+                )
+                
+                response = model.generate_content(prompt)
+                
+                # Handle response based on Google's API structure
+                if hasattr(response, 'text'):
+                    return response.text
+                elif hasattr(response, 'candidates') and response.candidates:
+                    return response.candidates[0].content.parts[0].text
+                else:
+                    return str(response)
+                
             elif self.model_provider == "huggingface":
                 response = self.llm_client(
                     prompt, 

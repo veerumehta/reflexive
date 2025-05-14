@@ -27,13 +27,13 @@ def main():
     
     # Set up configuration
     kb_llm_config = {
-        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-pro"),
-        "api_key": os.environ.get("GOOGLE_API_KEY"),
-        "model_provider": "google"
+        "model_name": os.environ.get("KB_LLM_MODEL", "gemini-2.0-flash"),
+        "api_key": os.environ.get("GEMINI_API_KEY"),
+        "model_provider": "google",
     }
     
     target_llm_config = {
-        "model_name": os.environ.get("TARGET_LLM_MODEL", "gemini-pro"),
+        "model_name": os.environ.get("TARGET_LLM_MODEL", "gemini-2.0-flash"),
         "api_key": os.environ.get("GOOGLE_API_KEY"),
         "model_provider": "google"
     }
