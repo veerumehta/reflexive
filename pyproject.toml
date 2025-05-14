@@ -29,6 +29,9 @@ dependencies = [
 ]
 requires-python = ">=3.8"
 
+[tool.setuptools]
+packages = ["reflexive_composition"]
+
 [project.urls]
 "Homepage" = "https://github.com/SystemTwoAI/ReflexiveComposition"
 "Bug Tracker" = "https://github.com/SystemTwoAI/ReflexiveVomposition/issues"
