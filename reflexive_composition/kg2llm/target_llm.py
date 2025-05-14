@@ -289,6 +289,13 @@ class TargetLLM:
                 logger.warning("Could not extract text from Anthropic response using standard format")
                 return str(llm_response)
         
+        elif self.model_provider == "google":
+            # Gemini responses may return a 'candidates' list with 'content.parts'
+            try:
+                return llm_response.candidates[0].content.parts[0].text
+            except Exception:
+                return str(llm_response)
+            
         elif self.model_provider == "huggingface":
             try:
                 # Extract generated text beyond the prompt
