@@ -1,17 +1,15 @@
 {
   "entities": [
-    { "type": "Patient", "name": "John Doe" },
-    { "type": "Condition", "name": "hypertension" },
+    { "type": "Patient", "name": "Subject_100002" },
     { "type": "Condition", "name": "Type 2 diabetes" },
-    { "type": "Medication", "name": "metformin" },
-    { "type": "Medication", "name": "lisinopril" },
-    { "type": "Allergy", "name": "sulfa drugs" }
+    { "type": "Condition", "name": "Chronic kidney disease stage 3" },
+    { "type": "Medication", "name": "Metformin" },
+    { "type": "Medication", "name": "Lisinopril" }
   ],
   "relations": [
-    { "subject": "John Doe", "predicate": "HasCondition", "object": "hypertension" },
-    { "subject": "John Doe", "predicate": "HasCondition", "object": "Type 2 diabetes" },
-    { "subject": "John Doe", "predicate": "Prescribed", "object": "metformin" },
-    { "subject": "John Doe", "predicate": "Prescribed", "object": "lisinopril" },
-    { "subject": "John Doe", "predicate": "ContraindicatedWith", "object": "sulfa drugs" }
+    { "subject": "Subject_100002", "predicate": "HasCondition", "object": "Type 2 diabetes" },
+    { "subject": "Subject_100002", "predicate": "HasCondition", "object": "Chronic kidney disease stage 3" },
+    { "subject": "Subject_100002", "predicate": "Prescribed", "object": "Metformin" },
+    { "subject": "Subject_100002", "predicate": "Prescribed", "object": "Lisinopril" }
   ]
 }

@@ -1,25 +1,12 @@
-"""
-Medical QA Case Study — Reflexive Composition Framework
-
-This script demonstrates how structured and private clinical knowledge can be extracted,
-validated, and grounded to support patient-specific question answering.
-"""
-
 import os
-import logging
+import json
+from typing import Optional
 from reflexive_composition.core import ReflexiveComposition
-from reflexive_composition.hitl.interface import ConsoleValidationInterface
-from reflexive_composition.knowledge_graph.graph import KnowledgeGraph
 from reflexive_composition.utils.llm_utils import log_result
-from prompt_templates import WITH_CONTEXT_PROMPT_TEMPLATE, NO_CONTEXT_PROMPT_TEMPLATE
+from prompt_templates import WITH_CONTEXT_TEMPLATE, NO_CONTEXT_TEMPLATE
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
 
-def main():
+def run_single_query(query: Optional[str] = None, grounded: bool = True, template: Optional[str] = None):
     print("\n=== Medical QA Case Study: FHIR + RxNorm Grounding ===\n")
 
     # --- Configuration ---
@@ -58,58 +45,54 @@ def main():
     )
 
     # --- Source Text ---
-    # Optional: Load from structured patient data
-    json_path = os.path.join("data", "fhir_patient.json")
-    if os.path.exists(json_path):
-        import json
-        with open(json_path) as f:
-            structured_data = json.load(f)
-        print("\nLoaded structured data:")
-        for rel in structured_data["relations"]:
-            print(" -", rel["subject"], rel["predicate"], rel["object"])
-        print("\n(You can wire this into a KG directly instead of using free text.)\n")
-    source_text = """
-    Patient John Doe, age 45, diagnosed with hypertension and Type 2 diabetes.
-    Currently taking metformin and lisinopril. Reports mild allergy to sulfa drugs.
-    """
+    source_path = os.path.join(os.path.dirname(__file__), "data", "fhir_patient.json")
+    with open(source_path, "r") as f:
+        source_text = f.read()
 
-    print("Extracting structured knowledge from FHIR-style patient record...\n")
-    extraction_result = rc.extract_knowledge(
-        source_text=source_text,
-        schema=kg_config["schema"],
-        confidence_threshold=0.7
-    )
-
+    # --- Extract and validate knowledge ---
+    extraction_result = rc.extract_knowledge(source_text)
     rc.knowledge_graph.add_triples(extraction_result["triples"])
 
-    print("\nExtracted Triples:")
-    for triple in extraction_result["triples"]:
-        print(" -", triple)
+    # --- User Query ---
+    user_query = query or "Is this patient currently on a blood pressure medication?"
 
-    print("\nGenerating answer to clinical question without knowledge...\n")
-    prompt_result = rc.generate_response(
-        query="Are there any known medication risks for this patient profile?",
-        grounded=False,
-        template=NO_CONTEXT_PROMPT_TEMPLATE,
+    if not template:
+        template = WITH_CONTEXT_TEMPLATE if grounded else NO_CONTEXT_TEMPLATE
+
+    # --- Generate response ---
+    result = rc.generate_response(
+        query=user_query,
+        grounded=grounded,
+        template=template,
+        context_label="Context (extracted from clinical data)"
     )
-    print("Generated Answer:")
-    print(prompt_result)
 
-    log_result(prompt_result)
+    log_result({**result, "query": user_query})
+    return result
 
-    print("\nGenerating answer to clinical question with knowledge...\n")
-    prompt_result = rc.generate_response(
-        query="Are there any known medication risks for this patient profile?",
-        grounded=True,
-        context_label="Context (extracted from clinical data)",
-        template=WITH_CONTEXT_PROMPT_TEMPLATE,
-    )
-    print("Generated Answer:")
-    print(prompt_result)
-
-    log_result(prompt_result)
-    
-    print("\n=== End of Medical QA Case Study ===\n")
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--query", type=str, help="Single query string")
+    parser.add_argument("--query-file", type=str, help="Path to .jsonl file of queries")
+    parser.add_argument("--grounded", action="store_true", default=True, help="Use grounded context (default: True)")
+    parser.add_argument("--no-grounded", dest="grounded", action="store_false", help="Disable grounding")
+    args = parser.parse_args()
+
+    if args.query_file:
+        with open(args.query_file) as f:
+            for line in f:
+                q = json.loads(line)
+                run_single_query(
+                    query=q["query"],
+                    grounded=args.grounded,
+                    template=WITH_CONTEXT_TEMPLATE if args.grounded else NO_CONTEXT_TEMPLATE
+                )
+    else:
+        run_single_query(
+            query=args.query or "Is this patient currently on a blood pressure medication?",
+            grounded=args.grounded,
+            template=WITH_CONTEXT_TEMPLATE if args.grounded else NO_CONTEXT_TEMPLATE
+        )
