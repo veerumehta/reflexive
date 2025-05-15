@@ -3,3 +3,4 @@
 {"id": "q3", "query": "Is the patient taking a blood thinner?"}
 {"id": "q4", "query": "What class of drug is Metformin?"}
 {"id": "q5", "query": "Is there any risk related to kidney function in this patient?"}
+{"id": "q6", "query": "Is any of the patient's medication contraindicated for their condition?"}

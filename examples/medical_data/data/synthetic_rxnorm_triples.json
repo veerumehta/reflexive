@@ -23,5 +23,9 @@
     "subject": "Albuterol",
     "predicate": "ClassifiesAs",
     "object": "Bronchodilator"
+  },
+  { "subject": "Metformin",
+    "predicate": "ContraindicatedWith",
+    "object": "Chronic kidney disease stage 3"
   }
 ]
