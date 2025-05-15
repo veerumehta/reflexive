@@ -53,6 +53,20 @@ class GraphStorage:
         """
         return self.backend.add_triples(triples)
     
+        
+    def get_triples(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve all triples from the storage backend.
+
+                Returns:
+            List of triple dictionaries.
+        """
+        try:
+            return self.backend.triples if hasattr(self.backend, "triples") else []
+        except Exception as e:
+            logger.error(f"Error retrieving triples from backend: {e}")
+            return []
+    
     def query(self, query_string: str, query_type: str = "sparql") -> List[Dict[str, Any]]:
         """
         Query the storage.
@@ -316,7 +330,7 @@ class RDFStorage:
         except Exception as e:
             logger.error(f"Error adding triples to RDF storage: {e}")
             return False
-    
+
     def query(self, query_string: str, query_type: str = "sparql") -> List[Dict[str, Any]]:
         """
         Query the RDF storage.

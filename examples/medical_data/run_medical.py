@@ -10,6 +10,7 @@ import logging
 from reflexive_composition.core import ReflexiveComposition
 from reflexive_composition.hitl.interface import ConsoleValidationInterface
 from reflexive_composition.knowledge_graph.graph import KnowledgeGraph
+from prompt_templates import WITH_CONTEXT_PROMPT_TEMPLATE, NO_CONTEXT_PROMPT_TEMPLATE
 
 # Configure logging
 logging.basicConfig(
@@ -78,16 +79,28 @@ def main():
         confidence_threshold=0.7
     )
 
+    rc.knowledge_graph.add_triples(extraction_result["triples"])
+
     print("\nExtracted Triples:")
     for triple in extraction_result["triples"]:
         print(" -", triple)
 
-    print("\nGenerating answer to clinical question...\n")
-    prompt_result = rc.answer_query(
+    print("\nGenerating answer to clinical question without knowledge...\n")
+    prompt_result = rc.generate_response(
         query="Are there any known medication risks for this patient profile?",
-        grounded=True
+        grounded=False,
+        template=NO_CONTEXT_PROMPT_TEMPLATE,
     )
+    print("Generated Answer:")
+    print(prompt_result)
 
+    print("\nGenerating answer to clinical question with knowledge...\n")
+    prompt_result = rc.generate_response(
+        query="Are there any known medication risks for this patient profile?",
+        grounded=True,
+        context_label="Context (extracted from clinical data)",
+        template=WITH_CONTEXT_PROMPT_TEMPLATE,
+    )
     print("Generated Answer:")
     print(prompt_result)
 

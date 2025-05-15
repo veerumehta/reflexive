@@ -44,6 +44,9 @@ class ReflexiveComposition:
         self._init_kg2llm(target_llm_config)
         self._init_knowledge_graph(kg_config)
         
+        from reflexive_composition.kg2llm.prompt_builder import PromptBuilder
+        self.prompt_builder = PromptBuilder()
+
         if hitl_config:
             self._init_hitl(hitl_config)
         else:
@@ -212,52 +215,41 @@ class ReflexiveComposition:
         """
         return self.knowledge_graph.add_triples(triples)
     
-    def generate_response(self, 
-                         query: str, 
-                         retrieve_context: bool = True,
-                         max_context_items: int = 10) -> Dict[str, Any]:
+    def generate_response(self,
+                          query: str,
+                          grounded: bool = True,
+                          context_label: str = "Facts",
+                          template: Optional[str] = None,
+                          max_context_items: int = 10) -> Dict[str, Any]:
         """
-        Generate a response using the Target LLM with KG enhancement.
-        
-        Args:
-            query: The user query
-            retrieve_context: Whether to retrieve context from KG
-            max_context_items: Maximum number of KG items to include
-            
+        Generate a response using the target LLM, optionally grounded in the knowledge graph.
         Returns:
-            Generated response with metadata
+            LLM output string or dictionary
         """
-        context = {}
-        
-        if retrieve_context:
-            # Retrieve relevant subgraph
-            context = self.knowledge_graph.retrieve_context(
-                query, max_items=max_context_items
-            )
-        
+        triples = self.knowledge_graph.get_triples() if grounded else []
+        print(">>> DEBUG: triples being passed to prompt builder:", triples)
+        if max_context_items is not None:
+            triples = triples[:max_context_items]
+
+        prompt, meta = self.prompt_builder.build_prompt(query=query,
+                                                        context=triples,
+                                                        context_label=context_label,
+                                                        template=template)
+        print(">>> DEBUG: prompt:", prompt)
         # Generate response with context
-        response = self.target_llm.generate(query, context)
+        response = self.target_llm.generate(prompt)
         
         # Check for contradictions
-        contradictions = self._detect_contradictions(response, context)
+        contradictions = self._detect_contradictions(response, triples)
         
         if contradictions and self.validator:
             # Route contradictions to validator
             validated_response = self.validator.validate_response(
-                response, contradictions, context
+                response, contradictions, triples
             )
             return validated_response
         
         return response
-    
-    def answer_query(self, query: str, grounded: bool = True) -> dict:
-        if grounded:
-            response = self.generate_response(query=query, retrieve_context=True)
-        else:
-            # Skip KG and send raw query to the target LLM
-            response = self._target_llm.generate(query=query)
-        text = extract_text(response, self.target_llm.model_provider)
-        return text
     
     def _detect_contradictions(self, 
                               response: Dict[str, Any], 

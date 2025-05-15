@@ -119,10 +119,9 @@ class TargetLLM:
             "query": query
         }
         
-        # Build the prompt based on context
-        prompt, prompt_meta = self.prompt_builder.build_prompt(query, context)
-        response_meta["prompt_meta"] = prompt_meta
-        
+        # The prompt is assumed to have already been constructed
+        prompt = query  # Assume the prompt has already been constructed
+
         # Generate using the LLM
         try:
             if self.model_provider == "openai":

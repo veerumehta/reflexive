@@ -89,6 +89,19 @@ class KnowledgeGraph:
             logger.error(f"Error adding triples to knowledge graph: {e}")
             return False
     
+    def get_triples(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve all triples from the knowledge graph storage.
+
+        Returns:
+            List of triples (each as a dict with subject, predicate, object, etc.)
+        """
+        try:
+            return self.storage.get_triples()
+        except Exception as e:
+            logger.error(f"Error retrieving triples: {e}")
+            return []
+    
     def query(self, 
               query_string: str, 
               query_type: str = "sparql") -> List[Dict[str, Any]]:

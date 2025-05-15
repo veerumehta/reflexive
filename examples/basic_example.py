@@ -100,16 +100,28 @@ def main():
     user_query = "What happened to Donald Trump at the rally in July 2024?"
     print(f"User query: {user_query}\n")
     
+    print("=== Step 3.1: Knowledge-Free Response Generation ===")
+
     response = rc.generate_response(
         query=user_query,
-        retrieve_context=True,
-        max_context_items=10
+        grounded=False,
     )
     
     print("Generated response:")
     print(response['text'])
     print()
-    
+        
+    print("=== Step 3.2: Knowledge-Enhanced Response Generation ===")
+    response = rc.generate_response(
+        query=user_query,
+        grounded=True,
+        max_context_items=10,
+    )
+    print("Generated response:")
+    print(response['text'])
+    print()
+
+
     if response.get('meta', {}).get('has_contradictions', False):
         print("Contradictions detected:")
         for contradiction in response.get('meta', {}).get('contradictions', []):
