@@ -10,6 +10,7 @@ import logging
 from reflexive_composition.core import ReflexiveComposition
 from reflexive_composition.hitl.interface import ConsoleValidationInterface
 from reflexive_composition.knowledge_graph.graph import KnowledgeGraph
+from reflexive_composition.utils.llm_utils import log_result
 from prompt_templates import WITH_CONTEXT_PROMPT_TEMPLATE, NO_CONTEXT_PROMPT_TEMPLATE
 
 # Configure logging
@@ -94,6 +95,8 @@ def main():
     print("Generated Answer:")
     print(prompt_result)
 
+    log_result(prompt_result)
+
     print("\nGenerating answer to clinical question with knowledge...\n")
     prompt_result = rc.generate_response(
         query="Are there any known medication risks for this patient profile?",
@@ -104,6 +107,9 @@ def main():
     print("Generated Answer:")
     print(prompt_result)
 
+    log_result(prompt_result)
+    
+    print("\n=== End of Medical QA Case Study ===\n")
 
 if __name__ == "__main__":
     main()

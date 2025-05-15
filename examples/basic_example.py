@@ -9,6 +9,7 @@ including knowledge extraction, validation, and enhanced generation.
 import os
 import logging
 from typing import Dict, List, Any, Optional
+from reflexive_composition.utils.llm_utils import log_result
 
 # Configure logging
 logging.basicConfig(
@@ -106,6 +107,8 @@ def main():
         query=user_query,
         grounded=False,
     )
+    
+    log_result(response)
     
     print("Generated response:")
     print(response['text'])

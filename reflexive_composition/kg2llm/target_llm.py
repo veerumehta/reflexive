@@ -9,6 +9,7 @@ using knowledge graph context.
 import logging
 import json
 from typing import Dict, List, Any, Optional, Union, Tuple
+from reflexive_composition.utils.llm_utils import extract_text, attach_prompt_stats
 
 logger = logging.getLogger(__name__)
 
@@ -151,6 +152,8 @@ class TargetLLM:
                 response_meta["has_contradictions"] = len(contradictions) > 0
             else:
                 response_meta["has_contradictions"] = False
+            
+            attach_prompt_stats(prompt, response_meta)
             
             # Prepare the final response
             response = {
