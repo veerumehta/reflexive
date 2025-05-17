@@ -136,33 +136,43 @@ class KnowledgeBuilderLLM:
             raise ValueError(f"Unsupported model provider: {self.model_provider}")
     
     def extract(self, 
-               text: str, 
-               schema: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+               text_or_prompt: str, 
+               schema: Optional[Dict[str, Any]] = None,
+               extraction_type: str = "general",
+               domain: Optional[str] = None) -> Dict[str, Any]:
         """
-        Extract structured knowledge from text.
+        Extract structured knowledge from text or a formatted prompt.
         
         Args:
-            text: The source text to extract knowledge from
+            text_or_prompt: Source text or formatted prompt
             schema: Optional schema to guide extraction
+            extraction_type: Type of extraction ("general", "temporal", "domain")
+            domain: Domain for domain-specific extraction
             
         Returns:
             Extracted structured knowledge as a dictionary
         """
-        # Format schema guidance if schema is provided
-        schema_guidance = ""
-        if schema:
-            entity_types = ", ".join(schema.get("entity_types", []))
-            relationship_types = ", ".join(schema.get("relationship_types", []))
-            schema_guidance = self.schema_prompt_template.format(
-                entity_types=entity_types,
-                relationship_types=relationship_types
-            )
+        # Check if this is already a formatted prompt
+        is_formatted_prompt = "Extract structured knowledge" in text_or_prompt or "Extract temporal knowledge" in text_or_prompt
         
-        # Format the full prompt
-        prompt = self.extraction_prompt_template.format(
-            text=text,
-            schema_guidance=schema_guidance
-        )
+        if is_formatted_prompt:
+            # Use the provided prompt directly
+            prompt = text_or_prompt
+        else:
+            # Format the prompt based on extraction type
+            from .prompt_templates import (
+                get_extraction_prompt, 
+                get_temporal_extraction_prompt,
+                get_domain_specific_extraction_prompt
+            )
+            
+            if extraction_type == "temporal":
+                prompt = get_temporal_extraction_prompt(text_or_prompt, schema)
+            elif extraction_type == "domain" and domain:
+                prompt = get_domain_specific_extraction_prompt(text_or_prompt, domain, schema)
+            else:
+                # Default to general extraction
+                prompt = get_extraction_prompt(text_or_prompt, schema)
         
         # Generate extraction with the appropriate LLM client
         extraction_result = self._generate_with_llm(prompt)
@@ -171,7 +181,7 @@ class KnowledgeBuilderLLM:
         parsed_extraction = self._parse_extraction(extraction_result)
         
         # Process the extraction for schema compatibility
-        if schema:
+        if schema and hasattr(self, 'schema_manager'):
             parsed_extraction = self.schema_manager.validate_against_schema(
                 parsed_extraction, schema
             )
