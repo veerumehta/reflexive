@@ -94,7 +94,7 @@ def main():
     update_success = rc.update_knowledge_graph(extraction_result['triples'])
     print(f"Update success: {update_success}")
     
-    kg_stats = rc.knowledge_graph.get_stats()
+    kg_stats = rc.kg.get_stats()
     print(f"Knowledge graph stats: {kg_stats}\n")
     
     # Generate a response using the updated knowledge graph
@@ -139,7 +139,7 @@ def main():
         
         corrected_response = rc.target_llm.generate_with_reflexive_correction(
             query=user_query,
-            context=rc.knowledge_graph.retrieve_context(user_query, max_items=10),
+            context=rc.kg.retrieve_context(user_query, max_items=10),
             validator=rc.validator,
             max_attempts=2
         )

@@ -40,9 +40,12 @@ class ReflexiveComposition:
         """
         self.kb_llm = None  # Will be initialized with LLM for extraction
         self.target_llm = None  # Will be initialized with LLM for generation
-        self.knowledge_graph = None  # Will hold the knowledge graph
+        self.kg = None  # Will hold the knowledge graph
         self.validator = None  # Will hold the HITL validation component
         self.update_trigger_manager = None  # Will manage update triggers
+
+        self.kg_config = kg_config
+        self.hitl_config = hitl_config
         
         # Initialize components
         self._init_llm2kg(kb_llm_config)
@@ -77,7 +80,7 @@ class ReflexiveComposition:
     def _init_knowledge_graph(self, config: Dict[str, Any]) -> None:
         """Initialize the Knowledge Graph component."""
         from reflexive_composition.knowledge_graph import KnowledgeGraph
-        self.knowledge_graph = KnowledgeGraph(**config)
+        self.kg = KnowledgeGraph(**config)
     
     def _init_hitl(self, config: Dict[str, Any]) -> None:
         """Initialize the HITL component."""
@@ -264,6 +267,7 @@ class ReflexiveComposition:
             print(f"DEBUG: Returning {len(filtered_triples)} filtered triples")
         
         return {'triples': filtered_triples}
+    
     def update_knowledge_graph(self, triples: List[Dict[str, Any]]) -> bool:
         """
         Update the knowledge graph with validated triples.
@@ -274,7 +278,7 @@ class ReflexiveComposition:
         Returns:
             Success status
         """
-        return self.knowledge_graph.add_triples(triples)
+        return self.kg.add_triples(triples)
     
     def update_schema(self,
                       schema_update: Dict[str, Any],
@@ -332,7 +336,7 @@ class ReflexiveComposition:
         updated_schema['version'] = current_schema.get('version', 0) + 1
         
         # Update the knowledge graph schema
-        success = self.knowledge_graph.update_schema(updated_schema)
+        success = self.kg.update_schema(updated_schema)
         
         if success:
             logger.info(f"Schema updated to version {updated_schema.get('version')}")
@@ -398,7 +402,7 @@ class ReflexiveComposition:
         """
         if grounded:
             # Get relevant context from knowledge graph
-            context = self.knowledge_graph.retrieve_context(query, max_context_items)
+            context = self.kg.retrieve_context(query, max_context_items)
             triples = context.get("triples", [])
         else:
             triples = []
@@ -481,7 +485,7 @@ class ReflexiveComposition:
                 
                 # Validate triple
                 validation_result = self.validator.validate_triple(
-                    triple, source_text, self.knowledge_graph
+                    triple, source_text, self.kg
                 )
                 
                 if validation_result.get("accepted", False):
@@ -489,7 +493,7 @@ class ReflexiveComposition:
             
             # Update knowledge graph with validated triples
             if validated_triples:
-                success = self.knowledge_graph.add_triples(validated_triples)
+                success = self.kg.add_triples(validated_triples)
                 
                 if success:
                     logger.info(f"Updated knowledge graph with {len(validated_triples)} triples from reflexive update")
@@ -506,7 +510,7 @@ class ReflexiveComposition:
                 return {"status": "no_triples_validated"}
         else:
             # Without validator, update directly with extracted triples
-            success = self.knowledge_graph.add_triples(extracted.get("triples", []))
+            success = self.kg.add_triples(extracted.get("triples", []))
             
             if success:
                 logger.info(f"Updated knowledge graph with {len(extracted.get('triples', []))} triples from reflexive update")

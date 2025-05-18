@@ -84,7 +84,7 @@ class KnowledgeBuilderLLM:
         self.llm_client = custom_llm_client or self._init_llm_client()
         
         # Initialize extractor helper
-        from .extraction import KnowledgeExtractor
+        from .extractor import KnowledgeExtractor
         self.extractor = KnowledgeExtractor()
         
         # Initialize schema manager
