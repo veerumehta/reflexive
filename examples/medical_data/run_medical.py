@@ -51,14 +51,14 @@ def run_single_query(query: Optional[str] = None, grounded: bool = True, templat
 
     # --- Extract and validate knowledge ---
     extraction_result = rc.extract_knowledge(source_text)
-    rc.knowledge_graph.add_triples(extraction_result["triples"])
+    rc.kg.add_triples(extraction_result["triples"])
 
     # --- Add RxNorm enrichment ---
     rx_path = os.path.join(os.path.dirname(__file__), "data", "synthetic_rxnorm_triples.json")
     if os.path.exists(rx_path):
         with open(rx_path, "r") as f:
             rx_triples = json.load(f)
-            rc.knowledge_graph.add_triples(rx_triples)
+            rc.kg.add_triples(rx_triples)
 
     # --- User Query ---
     user_query = query or "Is this patient currently on a blood pressure medication?"
