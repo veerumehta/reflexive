@@ -99,6 +99,7 @@ class ReflexiveComposition:
                         extraction_type: Optional[str] = None,
                         domain: Optional[str] = None,
                         auto_detect: bool = True,
+                        interactive: bool = True,
                         debug: bool = False) -> Dict[str, Any]:
         """
         Extract knowledge from source text using the KB-LLM.
@@ -229,7 +230,7 @@ class ReflexiveComposition:
                         print(f"DEBUG: Routing triple to validator")
                     # Route to validator
                     validation_result = self.validator.validate_triple(
-                        triple, source_text, self.knowledge_graph
+                        triple, source_text, self.knowledge_graph, interactive=interactive
                     )
                     if validation_result.get('accepted', False):
                         if debug:

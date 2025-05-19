@@ -7,6 +7,7 @@ from unstructured text, guided by a schema.
 """
 
 import json
+import re
 import logging
 from typing import Dict, List, Optional, Any, Union, Callable
 
@@ -290,12 +291,31 @@ class KnowledgeBuilderLLM:
             
         except json.JSONDecodeError:
             logger.warning(f"Failed to parse JSON from extraction, falling back to heuristic parsing")
+            logger.warning(f"Extraction text: {extraction_text}")
+            truncated_json = self._try_recover_json(extraction_text)
+            if truncated_json:
+                return truncated_json
+            logger.warning("Recovery failed, using extractor for parsing")
             return self.extractor.extract_from_text(extraction_text)
         
         except Exception as e:
             logger.error(f"Error parsing extraction: {e}")
             return {"triples": []}
     
+    def _try_recover_json(self, text):
+        """Attempt to recover from a truncated JSON array of triples."""
+        match = re.search(r"\{.*\"triples\":\s*\[", text, re.DOTALL)
+        if not match:
+            return None
+        start = match.start()
+        truncated = text[start:]
+        while truncated and not truncated.strip().endswith("}"):
+            truncated = truncated.strip()[:-1]
+        try:
+            return json.loads(truncated)
+        except Exception:
+            return None
+        
     def suggest_schema_updates(self, 
                               extractions: List[Dict[str, Any]], 
                               current_schema: Dict[str, Any]) -> Dict[str, Any]:

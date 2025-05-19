@@ -1,5 +1,6 @@
 import os
 import subprocess
+import argparse
 from reflexive_composition.eval import metrics
 
 # Define use case runners
@@ -16,9 +17,13 @@ OUTPUT_LOGS = {
     "medical_data": "outputs/medical_eval.jsonl"
 }
 
-def run_use_case(label, script_path):
-    print(f"Running: {label}")
-    result = subprocess.run(["python", script_path], capture_output=True, text=True)
+def run_use_case(label, script_path, interactive=False):
+    args = ["python", script_path]
+    if not interactive:
+        args.append("--no-hitl")
+        
+    print(f"Running: {label} with args: {args}")
+    result = subprocess.run(args, capture_output=True, text=True)
     print(result.stdout)
     if result.returncode != 0:
         print(f"Error running {label}: {result.stderr}")
@@ -41,6 +46,12 @@ def evaluate_outputs():
         print(f"[{label}] Metrics: {results}")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--interactive", action="store_true", help="Enable manual HITL interaction during runs")
+    args = parser.parse_args()
+    
+    interactive = args.interactive  # define the variable before use
+
     for label, script in USE_CASES.items():
-        run_use_case(label, script)
+        run_use_case(label, script, interactive=interactive)
     evaluate_outputs()
