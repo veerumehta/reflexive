@@ -147,7 +147,7 @@ class Validator:
         results = []
         
         for triple in triples:
-            result = self.validate_triple(triple, source_text, knowledge_graph)
+            result = self.validate_triple(triple, source_text, knowledge_graph, interactive)
             results.append(result)
         
         return {
