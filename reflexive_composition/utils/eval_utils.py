@@ -1,5 +1,19 @@
 import json
-from typing import List, Dict, Optional
+import os
+from typing import List, Dict, Optional, Tuple
+from reflexive_composition.kg2llm.contradiction_detector import ContradictionDetector
+
+def compute_f1(pred: str, gold: str) -> Tuple[float, float, float]:
+    """Compute token-level precision, recall, and F1."""
+    pred_tokens = set(pred.lower().split())
+    gold_tokens = set(gold.lower().split())
+    common = pred_tokens & gold_tokens
+    if not common:
+        return 0.0, 0.0, 0.0
+    precision = len(common) / len(pred_tokens)
+    recall = len(common) / len(gold_tokens)
+    f1 = 2 * precision * recall / (precision + recall)
+    return precision, recall, f1
 
 def run_query_loop(
     rc,
@@ -7,53 +21,71 @@ def run_query_loop(
     template_with_kg: str,
     template_without_kg: str,
     context_label: str = "Facts",
-    save_results: Optional[str] = None
+    save_results: Optional[str] = None,
+    gold_answers_path: Optional[str] = None,
+    contradiction_check: bool = False
 ):
-    """
-    Run a list of queries with and without knowledge grounding.
-
-    Args:
-        rc: ReflexiveComposition instance
-        queries_path: Path to .jsonl file with queries
-        template_with_kg: Prompt template when grounded=True
-        template_without_kg: Prompt template when grounded=False
-        context_label: Label for the context block (e.g., 'Facts', 'Context...')
-        save_results: Optional path to save results as JSONL
-    """
-    results = []
-
+    """Evaluate queries with and without KG, compute F1 if gold answers are available, and detect contradictions."""
+    
+    # Load queries
     with open(queries_path) as f:
-        for line in f:
-            entry = json.loads(line)
-            query = entry["query"]
-            qid = entry.get("id", query[:30].replace(" ", "_"))
+        query_entries = [json.loads(line) for line in f]
 
-            for grounded, template, mode in [
-                (False, template_without_kg, "no_kg"),
-                (True, template_with_kg, "with_kg")
-            ]:
-                print(f"\n[ID: {qid}] [{mode}] {query}")
-                result = rc.generate_response(
-                    query=query,
-                    grounded=grounded,
-                    template=template,
-                    context_label=context_label
-                )
+    # Load gold answers
+    gold_lookup = {}
+    if gold_answers_path:
+        with open(gold_answers_path) as f:
+            for line in f:
+                item = json.loads(line)
+                gold_lookup[item["id"]] = item["gold_answer"]
 
-                output = {
-                    "id": qid,
-                    "mode": mode,
-                    "query": query,
-                    "text": result["text"],
-                    "meta": result.get("meta", {})
-                }
+    results = []
+    detector = ContradictionDetector() if contradiction_check else None
 
-                print("→", output["text"])
-                results.append(output)
+    for entry in query_entries:
+        query = entry["query"]
+        qid = entry.get("id", query[:30].replace(" ", "_"))
 
+        for grounded, template, mode in [
+            (False, template_without_kg, "no_kg"),
+            (True, template_with_kg, "with_kg")
+        ]:
+            print(f"\n[ID: {qid}] [{mode}] {query}")
+            response = rc.generate_response(
+                query=query,
+                grounded=grounded,
+                template=template,
+                context_label=context_label
+            )
+            output_text = response["text"]
+            gold_answer = gold_lookup.get(qid)
+            f1_score = None
+            p = r = f1 = 0.0
+            if gold_answer:
+                p, r, f1 = compute_f1(output_text, gold_answer)
+                f1_score = round(f1, 3)
+
+            contradiction = None
+            if contradiction_check and detector:
+                contradiction = detector.detect_contradictions(output_text)
+
+            results.append({
+                "id": qid,
+                "mode": mode,
+                "query": query,
+                "response": output_text,
+                "gold_answer": gold_answer,
+                "precision": round(p, 3),
+                "recall": round(r, 3),
+                "f1": f1_score,
+                "has_contradiction": contradiction.get("has_contradiction") if contradiction else None,
+                "contradiction_details": contradiction.get("details") if contradiction else None
+            })
+
+    # Save results if needed
     if save_results:
-        with open(save_results, "w") as out:
-            for item in results:
-                out.write(json.dumps(item) + "\n")
+        with open(save_results, "w") as f:
+            for row in results:
+                f.write(json.dumps(row) + "\n")
 
     return results

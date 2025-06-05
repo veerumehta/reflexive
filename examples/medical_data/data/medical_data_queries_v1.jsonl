@@ -1,0 +1,50 @@
+{"id": "q0", "query": "What conditions does this patient have?"}
+{"id": "q1", "query": "What clinical conditions or medications are associated with a patient having asthma?"}
+{"id": "q2", "query": "Is the patient currently on a blood pressure medication?"}
+{"id": "q3", "query": "Is the patient taking a blood thinner?"}
+{"id": "q4", "query": "What class of drug is Metformin?"}
+{"id": "q5", "query": "Does the data suggest a chronic condition?"}
+{"id": "q6", "query": "Is any of the patient's medication contraindicated for their condition?"}
+{"id": "q7", "query": "Is Metformin appropriate for a patient with impaired kidney function?"}
+{"id": "q8", "query": "Does the patient have any contraindicated drug combinations?"}
+{"id": "q9", "query": "What class of drug is Metformin?"}
+{"id": "q10", "query": "Is there any risk related to kidney function in this patient?"}
+{"id": "q11", "query": "List all active medications for this patient."}
+{"id": "q12", "query": "Does the patient require renal dose adjustments?"}
+{"id": "q13", "query": "Is the patient currently on a blood pressure medication?"}
+{"id": "q14", "query": "Does the medication list indicate a psychiatric condition?"}
+{"id": "q15", "query": "Can this patient take live vaccines?"}
+{"id": "q16", "query": "Has the patient had any adverse drug reactions?"}
+{"id": "q17", "query": "What allergies are recorded for the patient?"}
+{"id": "q18", "query": "Which medications may cause drowsiness?"}
+{"id": "q19", "query": "Which medications affect liver function?"}
+{"id": "q20", "query": "Does the patient require renal dose adjustments?"}
+{"id": "q21", "query": "Are there any non-pharmacological treatments in use?"}
+{"id": "q22", "query": "Is the patient compliant with medication?"}
+{"id": "q23", "query": "What medication is contraindicated in pregnancy for this patient?"}
+{"id": "q24", "query": "Has the patient ever been prescribed opioids?"}
+{"id": "q25", "query": "What medication is contraindicated in pregnancy for this patient?"}
+{"id": "q26", "query": "Has the patient ever been prescribed opioids?"}
+{"id": "q27", "query": "Are there signs of metabolic syndrome?"}
+{"id": "q28", "query": "What is the mechanism of action for the patient\u2019s diabetes medication?"}
+{"id": "q29", "query": "Is aspirin being used as a preventive measure?"}
+{"id": "q30", "query": "Can any current medications impair driving ability?"}
+{"id": "q31", "query": "Can any current medications impair driving ability?"}
+{"id": "q32", "query": "Are probiotics part of the treatment plan?"}
+{"id": "q33", "query": "Has the patient received flu vaccination this season?"}
+{"id": "q34", "query": "Are antihistamines present in the medication list?"}
+{"id": "q35", "query": "Is there evidence of polypharmacy?"}
+{"id": "q36", "query": "Does the patient have any recent abnormal lab results?"}
+{"id": "q37", "query": "What is the patient's primary diagnosis?"}
+{"id": "q38", "query": "Has there been a dose adjustment in recent visits?"}
+{"id": "q39", "query": "Are anticoagulants in use?"}
+{"id": "q40", "query": "Does the patient have any drug allergies that affect treatment choice?"}
+{"id": "q41", "query": "What drugs in the list are nephrotoxic?"}
+{"id": "q42", "query": "Are corticosteroids currently prescribed?"}
+{"id": "q43", "query": "Are corticosteroids currently prescribed?"}
+{"id": "q44", "query": "Are any medications used off-label?"}
+{"id": "q45", "query": "Are there potential medication adherence issues?"}
+{"id": "q46", "query": "Is there any prescription for rescue medication?"}
+{"id": "q47", "query": "What psychosocial factors affect the treatment plan?"}
+{"id": "q48", "query": "Is the use of statins clinically justified?"}
+{"id": "q49", "query": "Does the medication history indicate asthma?"}
