@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 
 # Import Reflexive Composition
-from reflexive_composition.core import ReflexiveComposition
+from reflexive_composition.core.framework import ReflexiveComposition
 from reflexive_composition.hitl.interface import ConsoleValidationInterface
 from reflexive_composition.knowledge_graph.graph import KnowledgeGraph
 

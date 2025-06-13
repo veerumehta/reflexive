@@ -1,8 +1,8 @@
 import os
-from reflexive_composition.core import ReflexiveComposition
+from reflexive_composition.core.framework import ReflexiveComposition
 from reflexive_composition.utils.eval_utils import run_query_loop
 from prompt_templates import WITH_CONTEXT_TEMPLATE, NO_CONTEXT_TEMPLATE
-from medical_config import (get_kb_llm_config, get_target_llm_config, get_hitl_config, get_kg_config)
+from config import (get_kb_llm_config, get_target_llm_config, get_hitl_config, get_kg_config)
 
     # --- Configuration ---
 

@@ -67,7 +67,23 @@ def run_query_loop(
 
             contradiction = None
             if contradiction_check and detector:
-                contradiction = detector.detect_contradictions(output_text)
+                # Get the knowledge graph context for contradiction detection
+                if grounded:
+                    # Retrieve the same context that was used for generation
+                    kg_context = rc.kg.retrieve_context(query, max_items=10)
+                    context_triples = kg_context.get("triples", [])
+                else:
+                    # No context available for non-grounded responses
+                    context_triples = []
+                
+                # Detect contradictions with proper context
+                contradictions_list = detector.detect_contradictions(output_text, context_triples)
+                
+                # Format the contradiction result to match expected structure
+                contradiction = {
+                    "has_contradiction": len(contradictions_list) > 0,
+                    "details": contradictions_list
+                }
 
             results.append({
                 "id": qid,

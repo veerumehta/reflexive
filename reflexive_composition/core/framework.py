@@ -1,4 +1,4 @@
-# reflexive_composition/core.py
+# reflexive_composition/core/framework.py
 """
 Core components for the Reflexive Composition framework that enables 
 bidirectional enhancement between Language Models and Knowledge Graphs.

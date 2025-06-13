@@ -3,10 +3,10 @@ import json
 import argparse
 from typing import Optional, Dict, Any
 
-from reflexive_composition.core import ReflexiveComposition
+from reflexive_composition.core.framework import ReflexiveComposition
 from reflexive_composition.utils.llm_utils import log_result
-from prompt_templates import WITH_CONTEXT_TEMPLATE, NO_CONTEXT_TEMPLATE
-from config import (
+from examples.medical_data.prompt_templates import WITH_CONTEXT_TEMPLATE, NO_CONTEXT_TEMPLATE
+from examples.medical_data.config import (
     get_kb_llm_config,
     get_target_llm_config,
     get_hitl_config,

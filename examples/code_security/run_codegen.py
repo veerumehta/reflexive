@@ -7,7 +7,7 @@ or insecure APIs and generate safe code suggestions.
 
 import os
 import logging
-from reflexive_composition.core import ReflexiveComposition
+from reflexive_composition.core.framework import ReflexiveComposition
 from reflexive_composition.hitl.interface import ConsoleValidationInterface
 from reflexive_composition.knowledge_graph.graph import KnowledgeGraph
 from reflexive_composition.utils.llm_utils import log_result
