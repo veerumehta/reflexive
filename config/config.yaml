@@ -1,0 +1,43 @@
+reflexive_composition:
+  extraction:
+    confidence_threshold: 0.7
+    domain_detection: true
+    max_triples_per_document: 50
+    temporal_extraction: true
+  knowledge_graph:
+    backup_enabled: true
+    backup_interval: 24h
+    indexing_enabled: true
+    max_entities: 100000
+    max_relationships: 500000
+  schema:
+    entity_types:
+    - Person
+    - Organization
+    - Location
+    - Event
+    - Product
+    - Technology
+    - Date
+    - Currency
+    - Document
+    - Concept
+    relationship_types:
+    - WorksAt
+    - LocatedIn
+    - OccurredAt
+    - InvolvedIn
+    - ManufacturedBy
+    - AcquiredBy
+    - PartOf
+    - RelatedTo
+    - PublishedBy
+    - AuthoredBy
+    - Contains
+    - Mentions
+    version: 1
+  validation:
+    audit_trail: true
+    batch_size: 10
+    escalation_enabled: true
+    parallel_validation: true

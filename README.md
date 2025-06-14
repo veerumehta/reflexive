@@ -1,144 +1,119 @@
-# Reflexive Composition
 
-A framework for bidirectional enhancement of Large Language Models (LLMs) and Knowledge Graphs.
+# Reflexive Composition Framework
 
-## Overview
-
-Reflexive Composition is a modular framework that enables dynamic knowledge integration between LLMs and structured knowledge graphs. It creates a closed-loop system where LLMs assist in knowledge extraction and structured representation, while knowledge graphs provide factual grounding and context for LLM inference.
-
-The framework consists of three core components:
-
-1. **LLM2KG**: LLM-based knowledge extraction and graph construction
-2. **HITL**: Human-in-the-loop validation framework
-3. **KG2LLM**: Knowledge graph enhanced LLM inference
-
-## Architecture
-
-![Reflexive Composition Architecture](docs/images/architecture.png)
-
-The framework creates a reflexive loop:
-- LLMs extract structured knowledge from text (LLM2KG)
-- Human experts validate critical knowledge points (HITL)
-- Validated knowledge grounds LLM responses (KG2LLM)
-- Feedback from responses can trigger knowledge updates
-
-## Installation
-
-```bash
-# From PyPI (coming soon)
-pip install reflexive-composition
-
-# From source
-git clone https://github.com/SystemTwoAI/ReflexiveComposition.git
-cd reflexive-composition
-pip install -e .
-```
-
-## Usage
-
-### Basic Example
-
-```python
-from reflexive_composition.core import ReflexiveComposition
-
-# Initialize the framework
-rc = ReflexiveComposition(
-    kb_llm_config={
-        "model_name": "gpt-3.5-turbo",
-        "api_key": "your-openai-api-key",
-        "model_provider": "openai"
-    },
-    target_llm_config={
-        "model_name": "gpt-3.5-turbo",
-        "api_key": "your-openai-api-key",
-        "model_provider": "openai"
-    },
-    kg_config={
-        "storage_type": "in_memory",
-        "schema": {
-            "entity_types": ["Person", "Event", "Location"],
-            "relationship_types": ["LocatedIn", "ParticipatedIn"],
-            "version": 1
-        }
-    }
-)
-
-# Extract knowledge from text
-extraction_result = rc.extract_knowledge(
-    source_text="Donald Trump survived an assassination attempt during a rally in Butler, Pennsylvania on July 13, 2024.",
-    schema=rc.knowledge_graph.schema
-)
-
-# Update knowledge graph
-rc.update_knowledge_graph(extraction_result["triples"])
-
-# Generate enhanced response
-response = rc.generate_response(
-    query="What happened to Donald Trump at the rally?",
-    retrieve_context=True
-)
-
-print(response["text"])
-```
-
-See the [examples](examples/) directory for more detailed usage examples.
-
-## Case Studies
-
-The framework has been evaluated across several case studies:
-
-1. **Temporal Knowledge Management**: Handling evolving facts and current events
-2. **Private Data Integration**: Secure integration of private/sensitive information
-3. **Historical Bias Mitigation**: Reducing inherited biases in code generation
+A sophisticated framework for bidirectional enhancement between Large Language Models (LLMs) and Knowledge Graphs with strategic human-in-the-loop validation.
 
 ## Features
 
-- **Dynamic Knowledge Extraction**: Extract structured knowledge from text using LLMs
-- **Schema Evolution**: Automatically suggest and manage schema updates
-- **Strategic Validation**: Focus human oversight on critical decision points
-- **Knowledge-Enhanced Generation**: Ground LLM responses in validated knowledge
-- **Contradiction Detection**: Identify and resolve conflicts between LLM outputs and knowledge
-- **Multiple Storage Backends**: Support for in-memory, RDF, and Neo4j graph storage
+- **LLM2KG**: Automated knowledge extraction from text using LLMs
+- **Knowledge Graph**: Scalable graph storage with NetworkX backend
+- **Human-in-the-Loop**: Strategic validation with configurable thresholds
+- **KG2LLM**: Knowledge-grounded response generation
+- **Agentic Workflows**: LangGraph-based autonomous processing
+- **REST API**: Production-ready API with FastAPI
+- **Monitoring**: Comprehensive metrics and health monitoring
 
-## Development
+## Quick Start
 
-### Prerequisites
-
-- Python 3.8+
-- Required packages (see [pyproject.toml](pyproject.toml))
-
-### Setup Development Environment
+### 1. Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/SystemTwoAI/ReflexiveComposition.git
-cd reflexive-composition
-
-# Install development dependencies
-pip install -e ".[dev]"
-
-# Run tests
-pytest
+pip install -r requirements.txt
 ```
+
+### 2. Configuration
+
+Create a `.env` file:
+
+```bash
+# API Keys
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# Configuration
+HITL_INTERACTIVE=false
+HITL_AUTO_ACCEPT=0.9
+HITL_AUTO_REJECT=0.3
+```
+
+### 3. Basic Usage
+
+```python
+import asyncio
+from reflexive_composition_agentic import ProductionReflexiveComposition
+
+async def main():
+    config = {
+        "llm": {
+            "provider": "openai",
+            "model": "gpt-4",
+            "api_key": "your-api-key"
+        }
+    }
+    
+    system = ProductionReflexiveComposition(config)
+    await system.initialize()
+    
+    result = await system.agent.process_document(
+        document_text="Your text here",
+        query="Your question here",
+        domain="general"
+    )
+    
+    print(result)
+
+asyncio.run(main())
+```
+
+### 4. API Server
+
+```bash
+python api_server.py
+```
+
+Then access the API at `http://localhost:8000/docs`
+
+## Architecture
+
+The framework consists of three main components:
+
+1. **LLM2KG**: Extracts structured knowledge from unstructured text
+2. **HITL**: Validates extracted knowledge through human oversight
+3. **KG2LLM**: Generates responses grounded in validated knowledge
+
+## API Endpoints
+
+- `POST /extract` - Extract knowledge from text
+- `POST /query` - Query the knowledge graph
+- `GET /metrics` - Get system metrics
+- `GET /schema` - Get knowledge graph schema
+- `POST /batch` - Process multiple documents
+- `POST /upload` - Upload and process files
+
+## Testing
+
+```bash
+pytest test_reflexive_composition.py
+```
+
+## Examples
+
+See the `examples/` directory for comprehensive usage examples:
+
+- `example_basic.py` - Basic framework usage
+- `example_api_client.py` - API client usage
+
+## Configuration
+
+The system can be configured through environment variables or YAML files. See `config.yaml` for all available options.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Submit a pull request
 
 ## License
 
-This project is licensed under the GNU v3 license.
-
-## Citation
-
-If you use Reflexive Composition in your research, please cite:
-
-```bibtex
-@misc{author2025reflexive,
-  title={Reflexive Composition: Bidirectional Enhancement of Language Models and Knowledge Graphs},
-  author={Virendra Mehta},
-  year={2025},
-  publisher={GitHub},
-  howpublished={\url{https://github.com/SystemTwoAI/ReflexiveComposition}}
-}
-```
-
-## Acknowledgments
-
-This framework is based on research in neural-symbolic integration, knowledge graph engineering, and large language models.
+This project is licensed under the MIT License.
